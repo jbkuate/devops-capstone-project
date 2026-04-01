@@ -61,15 +61,38 @@ def create_accounts():
 # LIST ALL ACCOUNTS
 ######################################################################
 
-# ... place you code here to LIST accounts ...
+@app.route("/accounts", methods=["GET"])
+def list_accounts():
+    """Returns a list of accounts"""
+    app.logger.info("Request to list accounts...")
+
+    # Initialize an empty list to hold the accounts.
+    accounts = []
+    app.logger.info("Find all")
+    # If you didn't call list all
+    accounts = Account.all()
+
+    results = [account.serialize() for account in accounts]
+    app.logger.info("[%s] accounts returned", len(results))
+    return jsonify(results), status.HTTP_200_OK
 
 
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
 
-# ... place you code here to READ an account ...
-
+@app.route("/accounts/<int:account_id>", methods=["GET"])
+def get_accounts(account_id):
+    """
+    Retrieve a single account
+    This endpoint will return a account based on it's id
+    """
+    app.logger.info("Request to Retrieve a account with id [%s]", account_id)
+    account = Account.find(account_id)
+    if not account:
+        abort(status.HTTP_404_NOT_FOUND, f"account with id '{account_id}' was not found.")
+    app.logger.info("Returning account: %s", account.name)
+    return account.serialize(), status.HTTP_200_OK
 
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
