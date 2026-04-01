@@ -180,3 +180,91 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
         self.assertIn("was not found", data["message"])
+
+    #################################################################
+    #   Update a account
+    #################################################################
+    def test_update_account(self):
+        """It should Update an existing account"""
+        # create a account to update
+        test_account = AccountFactory()
+        # send a self.client.post() request to the BASE_URL with a json payload of test_account.serialize()
+        response = self.client.post(f"{BASE_URL}", json=test_account.serialize())
+        # assert that the resp.status_code is status.HTTP_201_CREATED
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # UPDATE THE account
+        # get the data from resp.get_json() as new_account
+        new_account = response.get_json()
+        # change new_account["description"] to unknown
+        new_account["email"] = "bosco@kumadef.com"
+        # send a self.client.put() request to the BASE_URL with a json payload of new_account
+        response = self.client.put(f"{BASE_URL}/{new_account['id']}", json=new_account)
+        # assert that the resp.status_code is status.HTTP_200_OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # get the data from resp.get_json() as updated_account
+        updated_account = response.get_json()
+        # assert that the updated_account["description"] is whatever you changed it to
+        self.assertEqual(updated_account["email"], "bosco@kumadef.com")
+
+    def test_update_account_not_found(self):
+        """It should Update an unexisting account"""
+        # create a account to update
+        test_account = AccountFactory()
+        # send a self.client.post() request to the BASE_URL with a json payload of test_account.serialize()
+        response = self.client.post(f"{BASE_URL}", json=test_account.serialize())
+        # assert that the resp.status_code is status.HTTP_201_CREATED
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # UPDATE THE account
+        # get the data from resp.get_json() as new_account
+        new_account = response.get_json()
+        # change new_account["description"] to unknown
+        new_account["email"] = "bosco@kumadef.com"
+        # send a self.client.put() request to the BASE_URL with a json payload of new_account
+        response = self.client.put(f"{BASE_URL}/0", json=new_account)
+        # assert that the resp.status_code is status.HTTP_404_NOT_FOUND
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # get the data from resp.get_json() as updated_account
+        data = response.get_json()
+        self.assertIn("was not found", data["message"])
+
+    #################################################################
+    #   Delete a account
+    #################################################################
+    def test_delete_account(self):
+        """It should Delete a account"""
+
+        # create a list accounts containing 5 accounts using the _create_accounts() method.
+        accounts = self._create_accounts(5)
+        # call the self.get_account_count() method to retrieve the initial count of accounts before any deletion
+        original_count = self.get_account_count()
+        # assign the first account from the accounts list to the variable test_account
+        test_account = accounts[0]
+        # send a self.client.delete() request to the BASE_URL with test_account.id
+        response = self.client.delete(f"{BASE_URL}/{test_account.id}")
+        # assert that the resp.status_code is status.HTTP_204_NO_CONTENT
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # check if the response data is empty
+        self.assertTrue(len(response.data) == 0)
+        # send a self.client.get request to the same endpoint that was deleted to retrieve the deteled account
+        response = self.client.get(f"{BASE_URL}/{test_account.id}")
+        # assert that the resp.status_code is status.HTTP_404_NOT_FOUND to confirm deletion of the account
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # retrieve the count of accounts after the deletion operation
+        current_count = self.get_account_count()
+        # check if the new count of accounts is one less than the initial count
+        self.assertTrue(current_count < original_count)
+
+
+    ######################################################################
+    # Utility functions
+    ######################################################################
+
+    def get_account_count(self):
+        """save the current number of accounts"""
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        # logging.debug("data = %s", data)
+        return len(data)
