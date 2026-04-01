@@ -123,4 +123,60 @@ class TestAccountService(TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
+    ################################################################################
     # ADD YOUR TEST CASES HERE ...
+    ################################################################################
+    def test_get_account_list(self):
+        """It should Get a list of Accounts"""
+        self._create_accounts(5)
+        # send a self.client.get() request to the BASE_URL
+        resp = self.client.get(BASE_URL)
+        # assert that the resp.status_code is status.HTTP_200_OK
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # get the data from resp.get_json()
+        data = resp.get_json()
+        # assert that the len() of the data is 5 (the number of accounts you created)
+        self.assertEqual(len(data), 5)
+
+
+    def test_read_an_account(self):
+        """It should Get a single Account"""
+        # Make a self.client.post() call to accounts to create a new account,
+        # passing in some account data.
+        account = AccountFactory()
+        resp = self.client.post(
+            BASE_URL,
+            json=account.serialize(),
+            content_type="application/json"
+        )
+        # assert that the resp.status_code is status.HTTP_201_CREATED
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        #Get back the account id that was generated from the json
+        new_account = resp.get_json()
+        account_id = new_account["id"]
+        # Make a self.client.get() 
+        #call to /accounts/{id} passing in that account id.
+        resp = self.client.get(f"{BASE_URL}/{account_id}")
+        # assert that the resp.status_code is status.HTTP_200_OK
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        #Check the json that was returned 
+        data = resp.get_json()
+        #assert that it is equal to the data that you sent.
+        self.assertEqual(data["name"], new_account["name"])
+        self.assertEqual(data["email"], new_account["email"])
+        self.assertEqual(data["address"], new_account["address"])
+        self.assertEqual(data.get("phone_number"), new_account.get("phone_number"))
+        self.assertEqual(data.get("date_joined"), new_account.get("date_joined"))
+
+    def test_account_not_found(self):
+        """It should not Get a Account thats not found"""
+
+        #Make a self.client.get() call to /accounts/{id} 
+        #passing in 0 as the account id
+        response = self.client.get(f"{BASE_URL}/0")
+        #Assert that the return code was HTTP_404_NOT_FOUND.
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("was not found", data["message"])
