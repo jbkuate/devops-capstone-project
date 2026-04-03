@@ -211,7 +211,7 @@ class TestAccountService(TestCase):
         self.assertEqual(updated_account["email"], "bosco@kumadef.com")
 
     def test_update_account_not_found(self):
-        """It should Update an unexisting account"""
+        """It should not Update an unexisting account"""
         # create a account to update
         test_account = AccountFactory()
         # send a self.client.post() request to the BASE_URL with a json payload of test_account.serialize()
@@ -276,6 +276,14 @@ class TestAccountService(TestCase):
         }
         for key, value in headers.items():
             self.assertEqual(response.headers.get(key), value)
+
+    def test_cors_security(self):
+        """It should return a CORS header"""
+        response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check for the CORS header
+        self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*')
+
 
     ######################################################################
     # Utility functions
