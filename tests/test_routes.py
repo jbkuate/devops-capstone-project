@@ -141,9 +141,9 @@ class TestAccountService(TestCase):
         # assert that the len() of the data is 5 (the number of accounts you created)
         self.assertEqual(len(data), 5)
 
-
     def test_read_an_account(self):
         """It should Get a single Account"""
+        
         # Make a self.client.post() call to accounts to create a new account,
         # passing in some account data.
         account = AccountFactory()
@@ -155,18 +155,17 @@ class TestAccountService(TestCase):
         # assert that the resp.status_code is status.HTTP_201_CREATED
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
-        #Get back the account id that was generated from the json
+        # Get back the account id that was generated from the json
         new_account = resp.get_json()
         account_id = new_account["id"]
-        # Make a self.client.get() 
-        #call to /accounts/{id} passing in that account id.
+        # Make a self.client.get() call to /accounts/{id} passing in that account id.
         resp = self.client.get(f"{BASE_URL}/{account_id}")
         # assert that the resp.status_code is status.HTTP_200_OK
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-        #Check the json that was returned 
+        # Check the json that was returned 
         data = resp.get_json()
-        #assert that it is equal to the data that you sent.
+        # assert that it is equal to the data that you sent.
         self.assertEqual(data["name"], new_account["name"])
         self.assertEqual(data["email"], new_account["email"])
         self.assertEqual(data["address"], new_account["address"])
@@ -176,10 +175,9 @@ class TestAccountService(TestCase):
     def test_account_not_found(self):
         """It should not Get a Account thats not found"""
 
-        #Make a self.client.get() call to /accounts/{id} 
-        #passing in 0 as the account id
+        # Make a self.client.get() call to /accounts/{id} passing in 0 as the account id
         response = self.client.get(f"{BASE_URL}/0")
-        #Assert that the return code was HTTP_404_NOT_FOUND.
+        # Assert that the return code was HTTP_404_NOT_FOUND.
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
         self.assertIn("was not found", data["message"])
@@ -263,7 +261,6 @@ class TestAccountService(TestCase):
     #   Security tests case
     #################################################################
 
-
     def test_security_headers(self):
         """It should return security headers"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
@@ -283,7 +280,6 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check for the CORS header
         self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*')
-
 
     ######################################################################
     # Utility functions
