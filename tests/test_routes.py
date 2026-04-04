@@ -143,7 +143,6 @@ class TestAccountService(TestCase):
 
     def test_read_an_account(self):
         """It should Get a single Account"""
-
         # Make a self.client.post() call to accounts to create a new account,
         # passing in some account data.
         account = AccountFactory()
