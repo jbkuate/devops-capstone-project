@@ -143,7 +143,7 @@ class TestAccountService(TestCase):
 
     def test_read_an_account(self):
         """It should Get a single Account"""
-        
+
         # Make a self.client.post() call to accounts to create a new account,
         # passing in some account data.
         account = AccountFactory()
@@ -163,7 +163,7 @@ class TestAccountService(TestCase):
         # assert that the resp.status_code is status.HTTP_200_OK
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-        # Check the json that was returned 
+        # Check the json that was returned
         data = resp.get_json()
         # assert that it is equal to the data that you sent.
         self.assertEqual(data["name"], new_account["name"])
